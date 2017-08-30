@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=utf-8"
-         pageEncoding="utf-8" %>
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
+<%@ page isELIgnored ="false" %>
 <%@page import="java.net.URLDecoder" %>
 <%
     String ctxPathName = request.getContextPath();
@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="<%=ctxPathName %>/js/jquery-easyui/themes/bootstrap/easyui.css">
 <script src="http://maps.google.cn/maps/api/js?language=zh-TW&v=3.exp&key=AIzaSyCoy86qvSNN4A1nEA5Kg-jVdNNjjyVbyFI&libraries=places,drawing,geometry" type="text/javascript"></script>
 <script src="<%=ctxPathName %>/js/jquery-2.1.3.min.js" type="text/javascript"></script>
+<script src="<%=ctxPathName%>/js/common.js" type="text/javascript"></script>
 <script src="<%=ctxPathName %>/js/jquery-easyui/jquery.easyui.min.js" type="text/javascript"></script>
 <script src="<%=ctxPathName %>/js/jquery-easyui/extension/edatagrid/jquery.edatagrid.js" type="text/javascript"></script>
 </head>
@@ -127,54 +128,27 @@ $(function(){
 		title:"地圖加載中..."
 	});
 	var mapProp = {
-	  center:new google.maps.LatLng(lat, lng),
-	  zoom:18,
-	  mapTypeId:google.maps.MapTypeId.ROADMAP,
-	  disableDefaultUI: true
-	  };
+	  	center:new google.maps.LatLng(lat, lng),
+	  	zoom:18,
+	  	mapTypeId:google.maps.MapTypeId.ROADMAP,
+	  	disableDefaultUI: true
+	};
 	map=new google.maps.Map(document.getElementById("map"),mapProp);
-	
-	// 初始化定义两个多边形点集合，用于默认展示。
-	  var triangleCoords = [
-	      {lat: 22.28158, lng: 114.1559},
-	      {lat: 22.28232, lng: 114.1554},
-	      {lat: 22.28248, lng: 114.1547}
-	  ];
-	  var triangleCoords1 = [
-  	      {lat: 22.28128, lng: 114.1567},
-  	      {lat: 22.28158, lng: 114.1567},
-  	      {lat: 22.28218, lng: 114.1577},
-  	      {lat: 22.28228, lng: 114.1587}
-  	  ];
-
-
-	  // 构建两个多边形
-	  var bermudaTriangle = new google.maps.Polygon({
-	    paths: triangleCoords,
-	    strokeColor: '#0088cc',
-	    strokeOpacity: 0.8,
-	    strokeWeight: 3,
-	    fillColor: '#0088cc',
-	    fillOpacity: 0.35,
-	    areaname:'区域C',
-	    areaid:'123'
-	  });
-	  var bermudaTriangle1 = new google.maps.Polygon({
-		    paths: triangleCoords1,
-		    strokeColor: '#ff6161',
+	genareadata();//从数据库中获取选区信息
+  	for(var i in areaData){
+		var nodeList = genareaNodeByAreaId(areaData[i].id);//根据选区信息获取选区所包含的结点集合
+		var tempTriangle = new google.maps.Polygon({
+		    paths: nodeList,
+		    strokeColor: areaData[i].fillColor,
 		    strokeOpacity: 0.8,
 		    strokeWeight: 3,
-		    fillColor: '#ff6161',
+		    fillColor: areaData[i].fillColor,
 		    fillOpacity: 0.35,
-		    areaname:'区域B',
-			areaid:'456'
-		  });
-	  //默认在地图上展示
-	  bermudaTriangle.setMap(map);
-	  bermudaTriangle1.setMap(map);
-	  // Add a listener for the click event.点击之后显示多边形点信息
-	  bermudaTriangle.addListener('click', showArrays);
-	  bermudaTriangle1.addListener('click', showArrays);
+		    areaname:areaData[i].areaName
+		});
+		tempTriangle.setMap(map);
+		tempTriangle.addListener('click', showArrays);
+	}
 	  infoWindow = new google.maps.InfoWindow;
 	  initAutocomplete();
 	
@@ -202,12 +176,13 @@ $(function(){
 	    border:false,
 	    rownumbers:true,
 	    columns:[[    
-	        {field:'area',title:'選區',width:80, editor:'text'},    
-	        {field:'color',title:'顏色',width:80, editor:'text'},
-	        {field:'xianshi',title:'顯示',width:40,formatter:function(value,row,index){
+			{field:'areaYear',title:'年份',width:80, editor:'text'},        
+	        {field:'areaName',title:'選區',width:80, editor:'text'},    
+	        {field:'fillColor',title:'顏色',width:80, editor:'text'},
+	        {field:'xianshi',title:'是否顯示',width:40,formatter:function(value,row,index){
 	        	return '<input type="checkbox" id="xianshi'+index+'" onchange="showOrHidepolygon(this,'+index+')">' ;
 	        }}, 
-	        {field:'huaquyu',title:'畫區域',width:60,formatter:function(value,row,index){
+	        {field:'huaquyu',title:'是否畫區域',width:60,formatter:function(value,row,index){
 	        	return '<input type="checkbox" targetxianshiId="xianshi'+index+'" name="huaquyu" onchange="showOrHidedrawingManager(this,'+index+')">' ;
 	        }}, 
 	    ]]    
@@ -217,10 +192,10 @@ $(function(){
 		var address = $("#address").val();
 		$.ajax({
 			   type: "POST",
-			   url: "${cxt!}/m/hello/map/ajaxLatLngByAddress" ,
+			   url: "<%=ctxPathName %>/view/zmap.do?method=ajaxLatLngByAddress" ,
 			   data:{"address":address},
 			   success: function(data){
-				   $("#lngDetail").html(data.data);
+				   $("#lngDetail").html(data.message);
 			   }
 			});
 		
@@ -230,10 +205,10 @@ $(function(){
 		var lat = $("#lat").val();
 		$.ajax({
 			   type: "POST",
-			   url: "${cxt!}/m/hello/map/ajaxAddressByLatLng" ,
+			   url: "<%=ctxPathName %>/view/zmap.do?method=ajaxAddressByLatLng" ,
 			   data:{"lng":lng,"lat":lat},
 			   success: function(data){
-				   $("#addressDetail").html(data.data);
+				   $("#addressDetail").html(data.message);
 			   }
 			});
 	})
@@ -259,7 +234,7 @@ function genuserdata() {
 		var marker = new google.maps.Marker({
 		    position: {lat: data.lat, lng:  data.lng},
 		    title: data.name,
-		    icon:'${cxt!}/ui/easyui/themes/icons/man.png',
+		    icon:'<%=ctxPathName %>/js/jquery-easyui/themes/icons/man.png',
 		    map:map
 		  });
 		data.marker=marker;
@@ -267,23 +242,24 @@ function genuserdata() {
 	}
 }
 
+/*
+ * 选区信息，需要改成读数据库，
+ */
 var areaData = [];
 function genareadata() {
-	areaData.push({
-		area:"選區A",
-		color:"#70c24a"
-	});
-	areaData.push({
-		area:"選區B",
-		color:"#ff6161"
-	});
-	areaData.push({
-		area:"選區C",
-		color:"#0088cc"
-	});
+	var url = "<%=ctxPathName %>/view/electoralArea.do?method=getElectoralAreaListByYear";
+	var result = requestAjaxData(url, false, true);
+	areaData = result.rows;
 }
 
+function genareaNodeByAreaId(areaId) {
+	var url = "<%=ctxPathName %>/view/electoralArea.do?method=getNodeByAreaId&areaId="+areaId;
+	var result = requestAjaxData(url, false, true);
+	console.log("genareaNodeByAreaId------"+result.rows);
+	return result.rows;
+}
 
+//显示或者隐藏选民标记
 function showOrHidemarker(thisObj,index){
 	if(thisObj.checked) {
 		userData[index].marker.setMap(map);
@@ -291,7 +267,7 @@ function showOrHidemarker(thisObj,index){
 		userData[index].marker.setMap(null);
 	}
 }
-
+//显示或者隐藏选区
 function showOrHidepolygon(thisObj,index){
 	if(areaData[index].polygon) {
 		$.each(areaData[index].polygon,function(){
@@ -304,6 +280,7 @@ function showOrHidepolygon(thisObj,index){
 	}
 }
 
+//划区域
 function showOrHidedrawingManager(thisObj,index){
 	if(!areaData[index].drawingManager) {
 		var drawingManager = new google.maps.drawing.DrawingManager({
@@ -311,25 +288,24 @@ function showOrHidedrawingManager(thisObj,index){
 		    drawingControl: false,
 		    editable : true,
 		    drawingControlOptions: {
-		      position: google.maps.ControlPosition.TOP_CENTER,
-		      drawingModes: [
-		        google.maps.drawing.OverlayType.POLYGON,
-		      ]
+		      	position: google.maps.ControlPosition.TOP_CENTER,
+		      	drawingModes: [
+		        	google.maps.drawing.OverlayType.POLYGON,
+		      	]
 		    },
 		    polygonOptions: {
-		      fillColor: areaData[index].color,
+		      fillColor: areaData[index].fillColor,
 		      fillOpacity: 0.5,//填充透明度
-		      strokeColor:areaData[index].color,
+		      strokeColor:areaData[index].strokeColor,
 		      strokeWeight: 2,
 		      editable: true,
 		      zIndex: 1
-		    }
+		   }
 		  });
 		  drawingManager.setMap(map);
 		  areaData[index].drawingManager = drawingManager;
 		  google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
-			  
-			  
+			  alert("需要保存结点信息");
 			  if(!areaData[index].polygon) {
 				  areaData[index].polygon = [];
 			  }
@@ -338,19 +314,29 @@ function showOrHidedrawingManager(thisObj,index){
 		      
 			  areaData[index].polygon.push(polygon);
 			  polygon.addListener('click', showpolygoninfo);
-			  polygon.areaname = areaData[index].area
+			  polygon.areaname = areaData[index].areaName
 			  polygon.areaid = (new Date()).getTime();
 			  var isWithinPolygon = google.maps.geometry.poly.containsLocation(coordinate, polygon)
 		      alert("判断环球大厦是否在多边形中LatLng(22.28255,114.1577184)---环球大厦-------------"+isWithinPolygon);
 			  
 			  
 			  var vertices = polygon.getPath();//Retrieves the first path.
-			  polygon.getPaths();//Retrieves the paths for this polygon.  这里很奇怪，getPaths结果只有一个值。
-				
+			  //polygon.getPaths();Retrieves the paths for this polygon.  这里很奇怪，getPaths结果只有一个值。
+			  var nodeArr = [];	
 			  for (var i =0; i < vertices.getLength(); i++) {
-			    var xy = vertices.getAt(i);
-			    //alert("循环多边形的每个节点---经度--"+xy.lng()+"纬度----"+xy.lat());
+				    var xy = vertices.getAt(i);
+				    var areaNode = {};
+				    areaNode.lng = xy.lng();
+				    areaNode.lat = xy.lat();
+				    areaNode.zoneId = areaData[index].id;
+				    areaNode.nodeOrder = i;
+				    nodeArr.push(areaNode);
 			  }
+			  
+			  //将nodeArr传到后台提交
+			  var url = "<%=ctxPathName %>/view/areaNode.do?method=saveAreaNodes&jsonListStr="+JSON.stringify(nodeArr);
+			  requestAjaxData(url, false, true);
+			  
 			  // Replace the info window's content and position.
 			  //infoWindow.setContent(contentString);
 			  //infoWindow.setPosition(polygon.latLng);
@@ -469,7 +455,7 @@ function initAutocomplete() {
     var bounds = new google.maps.LatLngBounds();
     places.forEach(function(place) {
       var icon = {
-        url: '${cxt!}/ui/easyui/themes/icons/maps.png',
+        url: "<%=ctxPathName %>/js/jquery-easyui/themes/icons/maps.png",
         size: new google.maps.Size(100, 100),
         origin: new google.maps.Point(0, 0),
         anchor: new google.maps.Point(17, 34),

@@ -1,1 +1,12 @@
-com\test\zmap_common\App.class
+com\test\model\AreaNodeCriteria.class
+com\test\model\AreaNodeCriteria$Criterion.class
+com\test\dao\ElectoralAreaMapper.class
+com\test\model\ElectoralAreaCriteria$Criteria.class
+com\test\model\AreaNodeCriteria$Criteria.class
+com\test\dao\AreaNodeMapper.class
+com\test\model\ElectoralAreaCriteria$Criterion.class
+com\test\model\AreaNode.class
+com\test\model\AreaNodeCriteria$GeneratedCriteria.class
+com\test\model\ElectoralAreaCriteria$GeneratedCriteria.class
+com\test\model\ElectoralAreaCriteria.class
+com\test\model\ElectoralArea.class

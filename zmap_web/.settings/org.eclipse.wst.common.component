@@ -3,8 +3,22 @@
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
-        <property name="context-root" value="zmap_web"/>
+        <dependent-module archiveName="zmap_controller-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/zmap_controller/zmap_controller">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="zmap_service-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/zmap_service/zmap_service">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="zmap_common-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/zmap_common/zmap_common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ldcommons-1.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ldcommons/ldcommons">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="common-utils-1.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/common-utils/common-utils">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="java-output-path" value="/zmap_web/target/classes"/>
+        <property name="context-root" value="ld"/>
     </wb-module>
 </project-modules>
