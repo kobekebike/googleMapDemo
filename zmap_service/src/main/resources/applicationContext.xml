@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:cache="http://www.springframework.org/schema/cache" 
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+						http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+						http://www.springframework.org/schema/jee
+						http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-3.0.xsd
+						http://www.springframework.org/schema/mvc
+						http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd												
+						http://www.springframework.org/schema/cache 
+						http://www.springframework.org/schema/cache/spring-cache-3.1.xsd
+						http://www.springframework.org/schema/task  
+						http://www.springframework.org/schema/task/spring-task-3.1.xsd"
+	default-lazy-init="false">
+
+	<!-- 定义受环境影响易变的变量 -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath*:/jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+<!-- 	<bean id="springUtils" class="com.ld.quartz.SpringUtils"/> -->
+
+<!-- 	<bean id="schedulerFactoryBean" -->
+<!-- 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean" /> -->
+	
+	<!-- spring缓存 -->
+	<cache:annotation-driven cache-manager="cacheManager"/>
+	
+	<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">  
+    <property name="caches">  
+        <set>  
+           <bean  
+                class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"  
+                p:name="default" />  
+            <bean  
+                class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"  
+                p:name="andCache" />  
+        </set>  
+    </property>  
+</bean> 
+	
+<!-- 	<bean id="sessionInterceptor" class="com.ld.interceptor.SessionInterceptor"/> -->
+	
+	<!-- 定义了这个，controller下类只要定义@Controller，或方法前只定义@RequestMapping就行了，当然想不用默认的也可以 -->
+<!-- 	<bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"> -->
+<!-- 		<property name="interceptors"> -->
+<!--             <list> -->
+<!--                 <ref bean="sessionInterceptor" /> -->
+<!--             </list> -->
+<!--         </property>         -->
+<!--     </bean> -->
+    
+<!--     <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"> -->
+<!-- 		<property name="interceptors"> -->
+<!--             <list> -->
+<!--                 <ref bean="sessionInterceptor" /> -->
+<!--             </list> -->
+<!--         </property>  -->
+<!--         <property name="mappings"> -->
+<!--         	<props> -->
+<!--     			<prop key="/ld/*">sessionInterceptor</prop> -->
+<!--     		</props> -->
+<!--         </property>        -->
+<!--     </bean>	 -->
+	
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+	<context:annotation-config/>
+	<task:annotation-driven/>
+	<context:component-scan base-package="com.test.zmap_service" />
+	<context:component-scan base-package="com.test.dao" />
+	<context:component-scan base-package="com.test.zmap_controller" />
+<!-- 	<context:component-scan base-package="com.ld.quartz" /> -->
+	
+<!-- 	<mvc:interceptors>						  -->
+<!-- 		<mvc:interceptor>			 -->
+<!-- 			<mvc:mapping path="/*.do"/> -->
+<!-- 			<ref bean="sessionInterceptor"/> -->
+<!-- 		</mvc:interceptor>		 		 -->
+<!-- 	</mvc:interceptors> -->
+	
+	
+	<!--  datasource 正式部署      
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="${datasource.name}" />
+	</bean>   -->
+	
+	<!-- 调试   -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driverClassName}" /> 
+		<property name="url" value="${jdbc.url}" /> 
+		<property name="username" value="${jdbc.username}" /> 
+		<property name="password" value="${jdbc.password}" /> 		
+		<property name="maxActive" value="100" />
+		<property name="maxIdle" value="1" />
+		<property name="maxWait" value="1000" />		
+		<property name="defaultAutoCommit" value="false" />
+		<property name="validationQuery" value="select 1 from dual"/>
+		<property name="testOnBorrow" value="true"/>  
+		<property name="testWhileIdle" value="true"/> 
+	</bean>   
+	
+	
+	<!-- mybatis -->  
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+   		 <!--  <property name="configLocation" value="classpath:ibatis-sqlmap-config.xml"/> -->
+   		 <property name="mapperLocations" value="classpath*:com/test/sqlmap/*.xml"/>  
+    	 <property name="dataSource" ref="dataSource"/>
+    </bean>    
+    	
+	<!-- libs-事务配置,针对datasource实现，也可以针对DAO实现，相应的要修改事务配置的 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 给action配置事务  -->	
+	<tx:advice id="transactionManagerAdivice" transaction-manager="transactionManager"  >   
+		<tx:attributes>   
+			<tx:method name="insert*" read-only="false" rollback-for="Exception" />
+			<tx:method name="add*" read-only="false" rollback-for="Exception" />   
+			<tx:method name="update*" read-only="false"	rollback-for="Throwable" />   
+			<tx:method name="save*" read-only="false" rollback-for="Exception" />
+			<tx:method name="delete*" read-only="false" rollback-for="Exception" />
+			<tx:method name="remove*" read-only="false" rollback-for="Exception" />			   
+			<tx:method name="*" read-only="true" />   
+		</tx:attributes>   
+	</tx:advice>   
+  
+    
+	<aop:config proxy-target-class="true">   
+		<aop:pointcut expression="execution(public * com.test.zmap_service..*.*(..))" id="zmapweb" />   
+		<aop:advisor advice-ref="transactionManagerAdivice" pointcut-ref="zmapweb" />		   
+	</aop:config>    
+	
+	<!-- service里要的 -->     
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">   
+    	<property name="basePackage" value="com.test.dao"/>   
+    </bean>  
+    	 
+</beans>

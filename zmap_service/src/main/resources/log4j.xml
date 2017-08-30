@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!-- 日志记录格式: <yyyy-MM-dd HH:mm:ss.SSS> <优先级> <包名.类名.方法(类名.java:行号)> 信息 -->
+	<!-- 控制台存放地 -->
+	<appender name="_Console"
+		class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<!-- <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %p %l - %m\n" /> -->
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %p [%F\:%L] - %m\n" />
+		</layout>
+	</appender>
+
+	<!-- 循环文件存放地 -->
+		<appender name="_ROLLFILE"
+		class="org.apache.log4j.DailyRollingFileAppender">  <!--  class="org.apache.log4j.RollingFileAppender"> -->
+		<errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler" /> 
+		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
+		<param name="File" value="log/ngo.log" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="&lt;%d{yyyy-MM-dd HH:mm:ss.SSS}> &lt;%p> &lt;%l> &lt;%m>%n" />
+		</layout>
+	</appender>
+
+	<appender name="cache_log_file"
+		class="org.apache.log4j.RollingFileAppender">
+		<errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler" />
+		<param name="File" value="cache_log_file.log" />
+		<param name="MaxFileSize" value="1024KB" />
+		<param name="MaxBackupIndex" value="10" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="&lt;%d{yyyy-MM-dd HH:mm:ss.SSS}> &lt;%p> &lt;%l> &lt;%m>%n" />
+		</layout>
+	</appender>
+	
+	<appender name="IBatis" class="org.apache.log4j.ConsoleAppender">
+	  <layout class="org.apache.log4j.PatternLayout">
+	   <param name="ConversionPattern"
+	    value="%-4r [%t] %-5p %c %x - %m%n" />
+	  </layout>
+	  <filter class="org.apache.log4j.varia.LevelRangeFilter">
+	   <param name="LevelMin" value="DEBUG" />
+	   <param name="LevelMax" value="DEBUG" />
+	  </filter>
+	 </appender>
+	 
+	 <logger name="com.ibatis" additivity="true">
+	  <level value="DEBUG" />
+	 </logger>
+	 
+	 <logger name="java.sql.Connection" additivity="true">
+	  <level value="DEBUG" />
+	 </logger>
+
+	 <logger name="java.sql.Statement" additivity="true">
+	  <level value="DEBUG" />
+	 </logger> 
+	 
+	 <logger name="java.sql.PreparedStatement" additivity="true">
+	  <level value="DEBUG" />
+	  <appender-ref ref="IBatis" />
+	 </logger>
+	
+	<root>
+		<level value="info" />
+		<appender-ref ref="_Console" />
+		<appender-ref ref="_ROLLFILE" />
+	</root>
+	
+</log4j:configuration>
