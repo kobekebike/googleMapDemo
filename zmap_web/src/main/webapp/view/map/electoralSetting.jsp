@@ -21,51 +21,7 @@
 	<div  class="easyui-layout" data-options="fit:true">   
 	    <div data-options="region:'west',split:true,minWidth:180" style="width:400px;">
 	    	<div  class="easyui-accordion" data-options="fit:true,border:false" >   
-			    <div title="實例1：地址搜索" data-options="" >   
-			    	 <div class="form-group">
-						<div class="col-sm-12" >
-							<input type="text" id="autocomplete" style="width:100%">
-						</div>
-					</div>
-					
-					<div class="form-group" >
-						<div class="col-sm-12" >
-							&nbsp;&nbsp;纬度：<input class="field" id="latAutoFill" disabled="true"></input></td>
-       								 <td class="label">
-						</div>
-					</div>
-					<div class="form-group" >
-						<div class="col-sm-12" >
-							&nbsp;&nbsp;经度：<input class="field" id="lngAutoFill" disabled="true">
-						</div>
-					</div>
-<!-- 
-					<div class="form-group" >
-						<div class="col-sm-4" >
-							Zip code
-						</div>
-						<div class="col-sm-8" >
-							<input class="field" id="postal_code" disabled="true">
-						</div>
-					</div>
-					<div class="form-group" >
-						<div class="col-sm-4" >
-							room
-						</div>
-						<div class="col-sm-8" >
-							<input class="field" id="room" disabled="true">
-						</div>
-					</div>
-					<div class="form-group" >
-						<div class="col-sm-4" >
-							floor
-						</div>
-						<div class="col-sm-8" >
-							<input class="field" id="floor" disabled="true">
-						</div>
- 					</div>
-			-->		
-			    </div>   
+			    
 			    <div title="實例2：選區設置"  >   
 			        <table id="areadg"></table>     
 			    </div>   
