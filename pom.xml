@@ -7,8 +7,13 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>z_map</name>
-  <url>http://maven.apache.org</url>
+  <repositories>	
+		<repository>
+			<id>jboss public</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+
+	</repositories> 
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,16 +29,11 @@
   </dependencies>
   
   <modules>
-  	
-  	
-  	
-  	
-  	
   	<module>zmap_common</module>
   	<module>zmap_controller</module>
   	<module>zmap_service</module>
   	<module>zmap_model</module>
-  	
   	<module>zmap_web</module>
+  	
   </modules>
 </project>
