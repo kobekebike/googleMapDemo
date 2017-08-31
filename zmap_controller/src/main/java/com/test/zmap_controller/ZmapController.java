@@ -22,16 +22,7 @@ public class ZmapController extends BasicController {
 			if(StringUtils.isBlank(address) ){  
 				result = "请输入详细地址";  
 	        }else{
-	        	String str =  GoogleMapUtil.getLatlngByAddress(address); 
- 				JSONObject o = (JSONObject) JSON.parse(str);  
- 				JSONArray o2 = (JSONArray) o.get("results");  
- 				JSONObject o3 =  (JSONObject) o2.get(0);  
- 				
- 				JSONObject o4 = (JSONObject) o3.get("geometry");  
- 				System.err.println(o4.toJSONString());
- 				System.err.println(((JSONObject) o3.get("address_components")).toJSONString());
- 				JSONObject o5 = (JSONObject)o4.get("location");  
- 				result = "lat-->>"+o5.get("lat")+";lng-->>"+o5.get("lng");
+	        	result =  GoogleMapUtil.getLatlngByAddress(address); 
 	        }  
 			this.writeBasicResult(response, true, result);
 		}catch(Exception e) {
@@ -47,14 +38,7 @@ public class ZmapController extends BasicController {
 			if(StringUtils.isBlank(lng) || StringUtils.isBlank(lat) ){  
 				result = "经度或者纬度为空，请填写";  
 	        }else{
-	        	String str =  GoogleMapUtil.getAddressBylatlng(lat,lng); 
-				// 打印响应内容      
-				JSONObject o = (JSONObject) JSON.parse(str);  
-				JSONArray o1 = (JSONArray)o.get("results");  
-				JSONObject o2 = (JSONObject)o1.get(0);  
-				if(null != o2){  
-					result = String.valueOf(o2.get("formatted_address"));  
-				}  
+	        	result =  GoogleMapUtil.getAddressBylatlng(lat,lng); 
 	        }  
 			this.writeBasicResult(response, true, result);
 		}catch(Exception e) {
