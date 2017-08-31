@@ -1,5 +1,6 @@
 package com.test.zmap_service;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -125,6 +126,20 @@ public class AreaNodeService {
 	 */
 	public int getCountAreaNode(AreaNodeCriteria areaNodeCriteria){
 		return areaNodeMapper.countByExample(areaNodeCriteria);
+	}
+	
+	public List<Point2D.Double> setNodeListToPointList(List<AreaNode> nodeList){
+		List<Point2D.Double> list = new ArrayList<Point2D.Double>();
+		if(nodeList==null||nodeList.size()==0){
+			return list;
+		}
+		for(int i=0,max=nodeList.size();i<max;i++){
+			AreaNode areaNode = nodeList.get(i);
+			Point2D.Double point = new Point2D.Double((areaNode.getLat()).doubleValue(),(areaNode.getLng()).doubleValue());
+			list.add(point);
+		}
+		
+		return list;
 	}
 	
 }

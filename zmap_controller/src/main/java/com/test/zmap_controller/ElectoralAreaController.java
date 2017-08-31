@@ -1,5 +1,6 @@
 package com.test.zmap_controller;
 
+import java.awt.geom.Point2D;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.ld.utils.GoogleMapUtil;
 import com.test.model.AreaNode;
 import com.test.model.AreaNodeCriteria;
 import com.test.model.ElectoralArea;
@@ -185,22 +187,44 @@ public class ElectoralAreaController extends BasicController {
 	}
 	
 	//根据选区表示，查找选区结点
-		@RequestMapping(params = "method=getNodeByAreaId")
-		public void getNodeByAreaId(HttpServletRequest request, HttpServletResponse response) {
-			AreaNodeCriteria areaNodeCriteria = new AreaNodeCriteria();
-			String areaId = request.getParameter("areaId");
-			if(StringUtils.isBlank(areaId)){
-				return ;
-			}
-			com.test.model.AreaNodeCriteria.Criteria criteria = areaNodeCriteria.createCriteria();
-			try{
-		    	criteria.andZoneIdEqualTo(Integer.parseInt(areaId));
-				List<AreaNode> list = areaNodeService.getAreaNodeListByCriteria(areaNodeCriteria);
-				writeJsonUsingPager(list, list.size(), response);
-			}catch(Exception e){
-				e.printStackTrace();
-				writeJsonArray(null, response);
-			}
+	@RequestMapping(params = "method=getNodeByAreaId")
+	public void getNodeByAreaId(HttpServletRequest request, HttpServletResponse response) {
+		AreaNodeCriteria areaNodeCriteria = new AreaNodeCriteria();
+		String areaId = request.getParameter("areaId");
+		if(StringUtils.isBlank(areaId)){
+			return ;
 		}
+		com.test.model.AreaNodeCriteria.Criteria criteria = areaNodeCriteria.createCriteria();
+		try{
+	    	criteria.andZoneIdEqualTo(Integer.parseInt(areaId));
+			List<AreaNode> list = areaNodeService.getAreaNodeListByCriteria(areaNodeCriteria);
+			writeJsonUsingPager(list, list.size(), response);
+		}catch(Exception e){
+			e.printStackTrace();
+			writeJsonArray(null, response);
+		}
+	}
+	
+	//根据地址判断是否在某个选区
+	@RequestMapping(params = "method=addressIsInArea")
+	public void addressIsInArea(HttpServletRequest request, HttpServletResponse response) {
+		AreaNodeCriteria areaNodeCriteria = new AreaNodeCriteria();
+		String areaId = request.getParameter("areaId");
+		if(StringUtils.isBlank(areaId)){
+			return ;
+		}
+		com.test.model.AreaNodeCriteria.Criteria criteria = areaNodeCriteria.createCriteria();
+		try{
+	    	criteria.andZoneIdEqualTo(Integer.parseInt(areaId));
+			List<AreaNode> list = areaNodeService.getAreaNodeListByCriteria(areaNodeCriteria);
+			List<Point2D.Double> pointList = areaNodeService.setNodeListToPointList(list);
+			boolean result = GoogleMapUtil.addressIsInPoly("环球大厦", pointList);
+			System.err.println("环球大厦--------"+result);
+			this.writeStr(result+"", response);
+		}catch(Exception e){
+			e.printStackTrace();
+			writeJsonArray(null, response);
+		}
+	}
 	
 }
